@@ -8,7 +8,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # 使用最新的 Ubuntu 虚拟机
-
+    permissions:
+        contents: write
+    
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3 # 第一步：拉取你的源码
