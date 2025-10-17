@@ -1,0 +1,35 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ] # 当 'main' 分支有 push 时触发
+  workflow_dispatch: # 允许你手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 虚拟机
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3 # 第一步：拉取你的源码
+        with:
+          submodules: true
+
+      - name: Setup Node.js 🟩
+        uses: actions/setup-node@v3 # 第二步：安装 Node.js
+        with:
+          node-version: '18' # 使用 Node.js 18
+          cache: 'npm'
+
+      - name: Install Dependencies 📦
+        run: npm install # 第三步：安装 Hexo 和插件
+
+      - name: Build 🏗️
+        run: hexo generate # 第四步：运行 hexo g，生成静态文件 (到 public 目录)
+
+      - name: Deploy 🚀
+        uses: peaceiris/actions-gh-pages@v3 # 第五步：使用一个流行的 Action 来部署
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动提供的 Token
+          publish_dir: ./public # 部署 'public' 文件夹
+          publish_branch: gh-pages # 部署到 'gh-pages' 这个新分支
