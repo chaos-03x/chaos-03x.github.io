@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js 🟩
         uses: actions/setup-node@v3 # 第二步：安装 Node.js
         with:
-          node-version: '18' # 使用 Node.js 18
+          node-version: '16' # 使用 Node.js 16
           cache: 'npm'
 
       - name: Install Dependencies 📦
