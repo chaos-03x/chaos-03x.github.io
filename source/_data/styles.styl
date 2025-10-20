@@ -1,0 +1,45 @@
+// --- 自定义图片样式 ---
+
+// "图片行" 容器
+.img-row
+  display: flex
+  flex-wrap: wrap
+  justify-content: space-between
+  margin-top: 20px
+  margin-bottom: 20px
+
+// "图片列"（用于两张图并排）
+.img-col-2
+  width: 40%
+  padding: 5px
+  box-sizing: border-box
+  margin: 0
+
+// "图片列"（用于三张图并排）
+.img-col-3
+  width: 32%
+  padding: 5px
+  box-sizing: border-box
+  margin: 0
+
+// 让“列”中的图片自动缩放
+.img-col-2 img,
+.img-col-3 img
+  width: 100%
+  height: auto
+  display: block
+
+// 底注样式
+.img-row figcaption
+  text-align: center
+  font-size: 0.9em
+  color: #666
+  margin-top: 5px
+  
+// 居中小图片
+.img-small
+  width: 60%
+  display: block
+  margin-left: auto
+  margin-right: auto
+  margin-bottom: 20px
