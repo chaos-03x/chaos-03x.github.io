@@ -40,7 +40,7 @@ external_link:
   exclude: ''
 filename_case: 0
 render_drafts: false
-post_asset_folder: true
+post_asset_folder: false
 relative_link: false
 future: true
 syntax_highlighter: highlight.js
@@ -96,9 +96,28 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: cactus
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: ''
+  
+# ---------------------------------
+# --- 插件配置  ---
+# ---------------------------------
+
+# Markdown 渲染器配置
+markdown:
+  preset: 'default' # 使用默认预设
+  render:
+    html: true      # 允许 HTML 标签
+    breaks: true    # 自动将换行符转为 <br>
+  plugins:
+    - markdown-it-footnote # 显式启用脚注插件
+  math: false
+
+
+# ---------------------------------
+# --- 插件配置结束 ---
+# ---------------------------------
