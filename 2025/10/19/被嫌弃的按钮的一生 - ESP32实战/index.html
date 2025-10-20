@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 8.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"aiaiai333.qzz.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="被嫌弃的按钮的一生[1] - ESP32实战 将蘑菇按钮改造成蓝牙快捷键 引言 世界上散落着无数按钮：当你按下白宫总统办公桌上的按钮，就会有一瓶健怡可乐失去生命[2]；按下某个手提箱里的按钮，就将点燃远方的导弹发射井。按钮赋予了决定物理的重量，每一次按压，都意味着一个承诺的诞生。换言之，被按下就是它与生俱来的宿命——用哲学的话来说，这正是一种“被抛状态”（Geworfenheit）[3]：按钮无从">
+<meta property="og:type" content="article">
+<meta property="og:title" content="被嫌弃的按钮的一生 - ESP32实战">
+<meta property="og:url" content="http://aiaiai333.qzz.io/2025/10/19/%E8%A2%AB%E5%AB%8C%E5%BC%83%E7%9A%84%E6%8C%89%E9%92%AE%E7%9A%84%E4%B8%80%E7%94%9F%20-%20ESP32%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="Chaosblog">
+<meta property="og:description" content="被嫌弃的按钮的一生[1] - ESP32实战 将蘑菇按钮改造成蓝牙快捷键 引言 世界上散落着无数按钮：当你按下白宫总统办公桌上的按钮，就会有一瓶健怡可乐失去生命[2]；按下某个手提箱里的按钮，就将点燃远方的导弹发射井。按钮赋予了决定物理的重量，每一次按压，都意味着一个承诺的诞生。换言之，被按下就是它与生俱来的宿命——用哲学的话来说，这正是一种“被抛状态”（Geworfenheit）[3]：按钮无从">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://aiaiai333.qzz.io/images/Button/Closed.jpg">
+<meta property="og:image" content="http://aiaiai333.qzz.io/images/Button/Open.jpg">
+<meta property="og:image" content="http://aiaiai333.qzz.io/images/Button/ESP32.jpg">
+<meta property="og:image" content="http://aiaiai333.qzz.io/images/Button/paragraph.jpg">
+<meta property="article:published_time" content="2025-10-19T13:53:10.000Z">
+<meta property="article:modified_time" content="2025-10-20T05:55:04.151Z">
+<meta property="article:author" content="zheng zhichao">
+<meta property="article:tag" content="DIY">
+<meta property="article:tag" content="ESP32">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://aiaiai333.qzz.io/images/Button/Closed.jpg">
+
+<link rel="canonical" href="http://aiaiai333.qzz.io/2025/10/19/%E8%A2%AB%E5%AB%8C%E5%BC%83%E7%9A%84%E6%8C%89%E9%92%AE%E7%9A%84%E4%B8%80%E7%94%9F%20-%20ESP32%E5%AE%9E%E6%88%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>被嫌弃的按钮的一生 - ESP32实战 | Chaosblog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/css/collapse.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chaosblog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://aiaiai333.qzz.io/2025/10/19/%E8%A2%AB%E5%AB%8C%E5%BC%83%E7%9A%84%E6%8C%89%E9%92%AE%E7%9A%84%E4%B8%80%E7%94%9F%20-%20ESP32%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zheng zhichao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chaosblog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          被嫌弃的按钮的一生 - ESP32实战
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-10-19 21:53:10" itemprop="dateCreated datePublished" datetime="2025-10-19T21:53:10+08:00">2025-10-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-10-20 13:55:04" itemprop="dateModified" datetime="2025-10-20T13:55:04+08:00">2025-10-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1>被嫌弃的按钮的一生<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> - ESP32实战</h1>
+<p><em>将蘑菇按钮改造成蓝牙快捷键</em></p>
+<h3 id="引言">引言</h3>
+<p>世界上散落着无数按钮：当你按下白宫总统办公桌上的按钮，就会有一瓶健怡可乐失去生命<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>；按下某个手提箱里的按钮，就将点燃远方的导弹发射井。按钮赋予了决定物理的重量，每一次按压，都意味着一个承诺的诞生。换言之，被按下就是它与生俱来的宿命——用哲学的话来说，这正是一种“被抛状态”（Geworfenheit）<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>：按钮无从选择。</p>
+<p>因此，我知道我必须做点什么，来拯救我桌上那个绿色蘑菇头按钮。</p>
+<span id="more"></span>
+<p>材料：</p>
+<ul>
+<li>工业按钮（自复位） - 约10元</li>
+<li>ESP32 - 约8元</li>
+</ul>
+<h3 id="准备">准备</h3>
+<p>打开按钮的外壳，可以发现其同时提供两种模式：</p>
+<ul>
+<li>常开：平时绝缘，按下时导通。</li>
+<li>常闭：平时导通，按下时绝缘。</li>
+</ul>
+<p>我选择让按钮常开，将两条导线的绝缘层剪开，将露出的铜丝分别接到常开侧的螺柱上，再将工业开关侧面预留圆孔处敲开，将导线分别接到 ESP32 的 GND 引脚和GPIO4引脚。电路连通会使 ESP32 的电平发生变化，这样即可知道按钮被按下。</p>
+<p>示例图片：</p>
+<div class='collapse'>
+      <div class='collapse-ctrl collapse-cardtitle' onclick='collapseToggle(this)'><div class='collapse-hint-ico'>&gt</div><span class='collapse-hint-show'>展开</span><span class='collapse-hint-hide'>收起</span></div>
+      <div class='collapse-content'><div class='content-flex collapse-cardborder'><div style='width:100%'>
+          <div class="img-row">
+    <figure class="img-col-3">
+        <img src="/images/Button/Closed.jpg" alt="绝缘">
+        <figcaption>图1: 平时状态：绝缘</figcaption>
+    </figure>
+    <figure class="img-col-3">
+        <img src="/images/Button/Open.jpg" alt="导通">
+        <figcaption>图2: 按钮按下：导通</figcaption>
+    </figure>
+    <figure class="img-col-3">
+        <img src="/images/Button/ESP32.jpg" alt="ESP32引脚">
+        <figcaption>图3: ESP32引脚</figcaption>
+    </figure>
+</div></div></div>
+      </div>
+  </div>
+<h3 id="部署">部署</h3>
+<p>这个项目仅需要一个第三方库，我使用的平台是 PlatformIO ，在项目根目录下的 <code>platformio.ini</code> 文件中，新起一行输入:</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">lib_deps</span> = </span><br><span class="line">	T-vk/ESP32 BLE Keyboard</span><br></pre></td></tr></table></figure>
+<p>如果使用 Arduino 环境，可以通过库管理工具直接安装。</p>
+<p>为了便于更改，将快捷键定义在代码顶部，参考以下表格自定义快捷键：</p>
+<p><strong>常用快捷键：</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>按键</strong></th>
+<th style="text-align:center"><strong>常量</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Ctrl</td>
+<td style="text-align:center"><code>KEY_LEFT_CTRL</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Shift</td>
+<td style="text-align:center"><code>KEY_LEFT_SHIFT</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Alt</td>
+<td style="text-align:center"><code>KEY_LEFT_ALT</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Win / Cmd</td>
+<td style="text-align:center"><code>KEY_LEFT_GUI</code></td>
+</tr>
+<tr>
+<td style="text-align:center">右 Ctrl</td>
+<td style="text-align:center"><code>KEY_RIGHT_CTRL</code></td>
+</tr>
+<tr>
+<td style="text-align:center">右 Shift</td>
+<td style="text-align:center"><code>KEY_RIGHT_SHIFT</code></td>
+</tr>
+<tr>
+<td style="text-align:center">右 Alt</td>
+<td style="text-align:center"><code>KEY_RIGHT_ALT</code></td>
+</tr>
+<tr>
+<td style="text-align:center">右 Win / Cmd</td>
+<td style="text-align:center"><code>KEY_RIGHT_GUI</code></td>
+</tr>
+<tr>
+<td style="text-align:center">F1 - F12</td>
+<td style="text-align:center"><code>KEY_F1</code>, <code>KEY_F2</code> … <code>KEY_F12</code></td>
+</tr>
+<tr>
+<td style="text-align:center">A - Z</td>
+<td style="text-align:center"><code>KEY_A</code>, <code>KEY_B</code>, <code>KEY_C</code> … <code>KEY_Z</code></td>
+</tr>
+<tr>
+<td style="text-align:center">0 - 9</td>
+<td style="text-align:center"><code>KEY_0</code>, <code>KEY_1</code>, <code>KEY_2</code> … <code>KEY_9</code></td>
+</tr>
+</tbody>
+</table>
+<p>未被列出的其余快捷键常量名（例如播放、暂停、音量），可以在<a target="_blank" rel="noopener" href="https://github.com/T-vK/ESP32-BLE-Keyboard/blob/master/BleKeyboard.h">这里进行查询</a>。</p>
+<br>
+<p>代码主体如下：</p>
+<div class='collapse'>
+      <div class='collapse-ctrl collapse-cardtitle' onclick='collapseToggle(this)'><div class='collapse-hint-ico'>&gt</div><span class='collapse-hint-show'>展开</span><span class='collapse-hint-hide'>收起</span></div>
+      <div class='collapse-content'><div class='content-flex collapse-cardborder'><div style='width:100%'>
+          <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Arduino.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;BleKeyboard.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ---  配置快捷键  ---</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// --- Ctrl + PrtSc ---</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MODIFIER_KEY_1 KEY_LEFT_CTRL</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MODIFIER_KEY_2 0	<span class="comment">// 不启用修饰键2</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAIN_KEY       KEY_PRTSC</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 硬件和设备配置 ---</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BUTTON_PIN 4 <span class="comment">// GPIO4</span></span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* DEVICE_NAME = <span class="string">&quot;ESP32 快捷键&quot;</span>; </span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* DEVICE_MANUFACTURER = <span class="string">&quot;MyESP32&quot;</span>; </span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 全局变量 ---</span></span><br><span class="line"><span class="function">BleKeyboard <span class="title">bleKeyboard</span><span class="params">(DEVICE_NAME, DEVICE_MANUFACTURER, <span class="number">100</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 防抖逻辑 ---</span></span><br><span class="line"><span class="type">int</span> buttonState = HIGH;             </span><br><span class="line"><span class="type">int</span> lastButtonState = HIGH;         </span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> lastDebounceTime = <span class="number">0</span>; </span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> debounceDelay = <span class="number">50</span>;   </span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 状态 ---</span></span><br><span class="line"><span class="type">bool</span> wasConnected = <span class="literal">false</span>; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">setup</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Serial.<span class="built_in">begin</span>(<span class="number">115200</span>); </span><br><span class="line">  Serial.<span class="built_in">println</span>(<span class="string">&quot;ESP32 快捷键启动...&quot;</span>);</span><br><span class="line">  <span class="built_in">pinMode</span>(BUTTON_PIN, INPUT_PULLUP);	<span class="comment">// 启用上拉电阻</span></span><br><span class="line">  bleKeyboard.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (bleKeyboard.<span class="built_in">isConnected</span>()) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!wasConnected) &#123;</span><br><span class="line">      Serial.<span class="built_in">println</span>(<span class="string">&quot;蓝牙已连接，更新按钮状态...&quot;</span>);</span><br><span class="line">      wasConnected = <span class="literal">true</span>;</span><br><span class="line">      lastButtonState = <span class="built_in">digitalRead</span>(BUTTON_PIN);</span><br><span class="line">      buttonState = lastButtonState;</span><br><span class="line">      lastDebounceTime = <span class="built_in">millis</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// --- 防抖逻辑 ---</span></span><br><span class="line">    <span class="type">int</span> reading = <span class="built_in">digitalRead</span>(BUTTON_PIN); </span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (reading != lastButtonState) &#123;</span><br><span class="line">      lastDebounceTime = <span class="built_in">millis</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((<span class="built_in">millis</span>() - lastDebounceTime) &gt; debounceDelay) &#123;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> (reading != buttonState) &#123;</span><br><span class="line">        buttonState = reading; </span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (buttonState == LOW) &#123;</span><br><span class="line">          Serial.<span class="built_in">println</span>(<span class="string">&quot;按钮按下，发送快捷键...&quot;</span>);</span><br><span class="line">          </span><br><span class="line">          <span class="comment">// --- 快捷键发送逻辑 ---</span></span><br><span class="line">          </span><br><span class="line">          <span class="comment">// 1. 按下修饰键1和修饰键2</span></span><br><span class="line">          <span class="keyword">if</span> (MODIFIER_KEY_1 != <span class="number">0</span>) &#123;</span><br><span class="line">            bleKeyboard.<span class="built_in">press</span>((<span class="type">uint8_t</span>)MODIFIER_KEY_1);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (MODIFIER_KEY_2 != <span class="number">0</span>) &#123;</span><br><span class="line">            bleKeyboard.<span class="built_in">press</span>((<span class="type">uint8_t</span>)MODIFIER_KEY_2);</span><br><span class="line">          &#125;</span><br><span class="line">          </span><br><span class="line">          <span class="comment">// 2. 按下主键</span></span><br><span class="line">          <span class="keyword">if</span> (MAIN_KEY != <span class="number">0</span>) &#123; </span><br><span class="line">            bleKeyboard.<span class="built_in">press</span>((<span class="type">uint8_t</span>)MAIN_KEY);</span><br><span class="line">          &#125;</span><br><span class="line">          </span><br><span class="line">          <span class="comment">// 3. 按住 100 毫秒，确保系统正确识别组合键</span></span><br><span class="line">          <span class="built_in">delay</span>(<span class="number">100</span>); </span><br><span class="line">          </span><br><span class="line">          <span class="comment">// 4. 释放所有按键</span></span><br><span class="line">          bleKeyboard.<span class="built_in">releaseAll</span>(); </span><br><span class="line">          </span><br><span class="line">          Serial.<span class="built_in">println</span>(<span class="string">&quot;发送完毕。&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    lastButtonState = reading; </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (wasConnected) &#123;</span><br><span class="line">      Serial.<span class="built_in">println</span>(<span class="string">&quot;蓝牙已断开...&quot;</span>);</span><br><span class="line">      wasConnected = <span class="literal">false</span>; </span><br><span class="line">    &#125;</span><br><span class="line">    Serial.<span class="built_in">println</span>(<span class="string">&quot;等待蓝牙连接...&quot;</span>);</span><br><span class="line">    <span class="built_in">delay</span>(<span class="number">2000</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</div></div>
+      </div>
+  </div>
+<br>
+<p>编译代码并上传后，在蓝牙连接页面找到 “ESP32 快捷键” ，连接成功后，锤一下蘑菇头，出现了截屏界面，确认按钮正常工作。</p>
+<video width="50%" controls>
+  <source src="/images/Button/Example.mp4" type="video/mp4">
+  您的浏览器不支持 HTML5 视频，请点击<a href="/images/my-video.mp4">此链接</a>下载。
+</video>
+<br>
+<p>我找了个 5V1A 的小插头为 ESP32 供电，让它 7*24 小时工作。根据电流表测算，平均功率约为 0.5W，一年 8760 小时，即：<br>
+$$<br>
+年耗电量 =\frac{平均功率 (W) \times 一年总小时数 (h)}{1000}=\frac{0.5 \times 8760}{1000} = 4.38 \approx 4.4(kWh)<br>
+$$<br>
+一度电（1kWh）算0.55元，即：<br>
+$$<br>
+电费=耗电量(kWh) \times 价格(元)=4.4 \times 5.55=2.42(元)<br>
+$$</p>
+<p>电脑 USB 端口供电也是个不错的主意，这样可以让 ESP32 仅在开机时运转，但是要注意是否在 BIOS 设置中开启了 <strong>USB 关机供电</strong>。</p>
+<h3 id="展望">展望</h3>
+<p>一些额外的改动可以让这个项目大为不同：</p>
+<ol>
+<li><strong>复数快捷键</strong>：<code>ESP32-BLE-Keyboard</code>支持识别键盘的三个状态灯，即 <strong>Num Lock</strong> (数字键盘锁定)、<strong>Caps Lock</strong> (大写锁定)、<strong>Scroll Lock</strong> (滚动锁定)。即可以考虑通过切换大小写，来定义两种不同的快捷键。</li>
+<li><strong>识别场景</strong>：定义一个固定快捷键，在PC端通过 <code>AutoHotkey</code> 判断不同的场景，触发不同功能。例如在视频播放器里播放/暂停，在浏览器里打开新标签页。</li>
+<li><strong>无线化</strong>：为其设计休眠模式，通过小型锂电池供电，将其无线化部署。</li>
+<li><strong>复杂手势</strong>：为单击、长按、双击定义不同逻辑。</li>
+<li><strong>更多硬件</strong>：利用 ESP32 的剩余引脚，可以连接好几个小型按钮，甚至编码器、 LED 灯、麦克风，实现更复杂的功能。</li>
+</ol>
+<h3 id="结尾">结尾</h3>
+<p>我就把按钮丢在桌子上。他那蘑菇，我们总能再见到。不过，按钮教给人升华的承诺，既否定键盘又触发按键。他也一样，断定一切皆善。这片天地从此没有了救世主，在他看来既没有更贫瘠，也不是微不足道。这按钮外壳的每一颗粒、这张棕色的书桌上每到木纹的反光，都单独为他形成一个世界。被按下去这场搏斗本身，就足以充实一颗人心。</p>
+<p><strong>必须想象，这个按钮是幸福的<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></strong>。</p>
+<div class="img-row">
+    <figure>
+        <img src="/images/Button/paragraph.jpg" class="img-small" alt="西西弗神话">
+		<figcaption>西西弗神话</figcaption>
+    </figure>
+</div>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>被嫌弃的按钮的一生:<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1787291/">被嫌弃的松子的一生 (豆瓣)</a> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>健怡可乐:<a target="_blank" rel="noopener" href="https://www.foxnews.com/politics/trump-brings-back-diet-coke-button-white-house-oval-office">据福克斯新闻报道</a>，随着特朗普重新入住白宫，总统办公桌上的按钮的用途又变回了召唤健怡可乐。 <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><a href="%5Bhttps://en.wikipedia.org/wiki/Thrownness">被抛状态</a>:出自德国哲学家海德格尔的《存在与时间》，将人类的个体存在描述为“被投掷”到世界中。 <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p>这段话改编自加缪的《西西弗神话》，李玉明译本，西西弗象征在荒谬世界中通过反抗与觉醒实现自由与幸福。 <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ESP32/" rel="tag"># ESP32</a>
+              <a href="/tags/DIY/" rel="tag"># DIY</a>
+          </div>
+
+        
+
+
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">被嫌弃的按钮的一生[1] - ESP32实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.0.1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%86%E5%A4%87"><span class="nav-number">1.0.2.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">1.0.3.</span> <span class="nav-text">部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%95%E6%9C%9B"><span class="nav-number">1.0.4.</span> <span class="nav-text">展望</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E5%B0%BE"><span class="nav-number">1.0.5.</span> <span class="nav-text">结尾</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zheng zhichao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zheng zhichao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<!-- hexo injector body_end start -->
+<script src="/js/collapse.js"></script>
+<!-- hexo injector body_end end --></body>
+</html>
