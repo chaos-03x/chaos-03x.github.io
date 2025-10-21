@@ -211,11 +211,15 @@ void loop() {
 
 我找了个 5V1A 的小插头为 ESP32 供电，让它 7*24 小时工作。根据电流表测算，平均功率约为 0.5W，一年 8760 小时，即：
 $$
-年耗电量 =\frac{平均功率 (W) \times 一年总小时数 (h)}{1000}=\frac{0.5 \times 8760}{1000} = 4.38 \approx 4.4(kWh)
+年耗电量 &=\frac{平均功率 (W) \times 一年总小时数 (h)}{1000} \\
+&=\frac{0.5 \times 8760}{1000} \\
+&  \approx 4.4(kWh)
 $$
 一度电（1kWh）算0.55元，即：
 $$
-电费=耗电量(kWh) \times 价格(元)=4.4 \times 5.55=2.42(元)
+电费 &= 耗电量(kWh) \times 价格(元) \\
+&=4.4 \times 5.55 \\
+&=2.42(元)
 $$
 
 电脑 USB 端口供电也是个不错的主意，这样可以让 ESP32 仅在开机时运转，但是要注意是否在 BIOS 设置中开启了 **USB 关机供电**。
@@ -244,6 +248,6 @@ $$
 </div>
 
 [^1]:被嫌弃的按钮的一生:[被嫌弃的松子的一生 (豆瓣)](https://movie.douban.com/subject/1787291/)
-[^2]:健怡可乐:[据福克斯新闻报道](https://www.foxnews.com/politics/trump-brings-back-diet-coke-button-white-house-oval-office)，随着特朗普重新入住白宫，总统办公桌上的按钮的用途又变回了召唤健怡可乐。
+[^2]:健怡可乐:[据福克斯新闻报道](https://www.foxnews.com/politics/trump-brings-back-diet-coke-button-white-house-oval-office)，随着特朗普重新入主白宫，总统办公桌上的按钮的用途又变回了召唤健怡可乐。
 [^3]:[被抛状态]([https://en.wikipedia.org/wiki/Thrownness):出自德国哲学家海德格尔的《存在与时间》，将人类的个体存在描述为“被投掷”到世界中。
 [^4]:这段话改编自加缪的《西西弗神话》，李玉明译本，西西弗象征在荒谬世界中通过反抗与觉醒实现自由与幸福。
